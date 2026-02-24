@@ -22,7 +22,7 @@ def First(symbol: str) -> list:
         i = 0
         value = RHS[i]
 
-        #Generatorlist(dict.fromkeys(first))
+        #Generator
         if value.isupper():
             gen = First(value)
             first.extend(gen)
