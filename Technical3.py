@@ -1,17 +1,14 @@
 #AI LINK = https://gemini.google.com/share/2e1e5330df8b
 
 productionRules = {
-    'A' : ["da", "BCD"],
+    'A' : ["da", "BC"],
     'B' : ["g", "e"],
     'C' : ["h", "e"],
-    'D' : ["b", "e"]
 }
 
-Productions = []
-Productions.append(list(productionRules.keys()))   #Values = [A, B, C]
+Productions = (list(productionRules.keys()))  #Values = [A, B, C]
 
 #get the non terminal
-#Hangang 2 na generator palang kaya.
 def First(symbol: str) -> list:
     first = []                  #Empty List
 	
@@ -21,8 +18,11 @@ def First(symbol: str) -> list:
     #Loop sa productions
     for RHS in productionRules[symbol]:
         i = 0
+
+        #Loop pang check kung pwede ung katabi
         while i < len(RHS):
             value = RHS[i]
+            
             #Generator
             if value.isupper():
                 gen = First(value)
@@ -51,5 +51,5 @@ def First(symbol: str) -> list:
 #def Follow(symbol):
     
 for generator in Productions:
-    first = First("A")
-    print(first)
+    first = First(generator)
+    print(f"FIRST ({generator}) : {first}")
