@@ -45,19 +45,19 @@ def productionRulesParser(userInput: str) -> None :
     productions = (list(productionRules.keys()))
 
 # Get the non terminal
-def First(symbol: str, visited=None) -> set:
+def First(symbol: str, visited=None) -> list:
 
     if visited is None:
-        visited = set()
-    
+        visited = set()           # Empty List
+	
     if symbol == "e" or symbol.islower():           # Base Case: Epsilon
-        return {symbol}
+        return [symbol]
     
     if symbol in visited:
-        return set()
+        return []
     
     visited.add(symbol)
-    first = set()
+    first = {}
 
     # Get productions for this Non-Terminal
     # Use .get() to avoid crash if symbol has no rules
@@ -66,20 +66,22 @@ def First(symbol: str, visited=None) -> set:
     # Loop sa productions
     for RHS in current_productions:
        for i, token in enumerate(RHS):
-            
-            token_first = (First(token, visited))
+           
+            token_first = First(token, visited)
 
-            first.update(token_first - {'e'})
+            for item in token_first:
+                if item != 'e':
+                    first[item] = None  # preserves insertion order
 
            # Check if nag generate ng epsilon
             if 'e' not in token_first:
                 break
 
             if i == len(RHS) - 1:
-                first.add('e')
+                first['e'] = None
 
     visited.remove(symbol)
-    return first
+    return list(first.keys())
 
 # --- YOUR PART START ---
 
