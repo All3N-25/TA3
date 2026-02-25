@@ -1,4 +1,4 @@
-#AI LINK = https://gemini.google.com/share/5b23ebd9d3ff
+# AI LINK = https://gemini.google.com/share/5b23ebd9d3ff
 
 productionRules = {}
 productions = []
@@ -49,8 +49,7 @@ def First(symbol: str, visited=None) -> set:
 
     if visited is None:
         visited = set()
-    first = []                  # Empty List
-	
+    
     if symbol == "e" or symbol.islower():           # Base Case: Epsilon
         return {symbol}
     
@@ -62,12 +61,12 @@ def First(symbol: str, visited=None) -> set:
 
     # Get productions for this Non-Terminal
     # Use .get() to avoid crash if symbol has no rules
-    productions = productionRules.get(symbol, [])
+    current_productions = productionRules.get(symbol, [])
 
     # Loop sa productions
-    for RHS in productions:
+    for RHS in current_productions:
        for i, token in enumerate(RHS):
-           
+            
             token_first = (First(token, visited))
 
             first.update(token_first - {'e'})
@@ -82,8 +81,63 @@ def First(symbol: str, visited=None) -> set:
     visited.remove(symbol)
     return first
 
+# --- YOUR PART START ---
+
 # find the non terminal after the given set
-#def Follow(symbol):
+followSets = {}
+
+def compute_follow():
+    global followSets
+    # precompute
+    followSets = {nt: [] for nt in productions} 
+    
+    if not productions:
+        return
+
+    # start symbol
+    followSets[productions[0]].append("$")
+
+    changed = True
+    while changed:
+        changed = False
+        for lhs in productions:
+            for rhs in productionRules[lhs]:
+                for i in range(len(rhs)):
+                    symbol = rhs[i]
+                    
+                    # check if non-terminal
+                    if symbol.isupper():
+                        before_len = len(followSets[symbol])
+                        
+                        # not last symbol
+                        if i + 1 < len(rhs):
+                            next_symbol = rhs[i + 1]
+                            first_next = First(next_symbol)
+                            
+                            # Add First(next) except epsilon
+                            for x in first_next:
+                                if x != "e" and x not in followSets[symbol]:
+                                    followSets[symbol].append(x)
+                            
+                            # if e in first_next, add Follow(LHS)
+                            if "e" in first_next:
+                                for x in followSets[lhs]:
+                                    if x not in followSets[symbol]:
+                                        followSets[symbol].append(x)
+                        
+                        # last symbol
+                        else:
+                            for x in followSets[lhs]:
+                                if x not in followSets[symbol]:
+                                    followSets[symbol].append(x)
+                        
+                        if len(followSets[symbol]) > before_len:
+                            changed = True
+
+def Follow(symbol):
+    return followSets[symbol]
+
+# --- YOUR PART END ---
 
 #MAIN
 print("Enter production Rules.")
@@ -98,8 +152,19 @@ i = 0
 while userInput != "DONE":
     i += 1
     userInput = input(f"Production Rule ({i}): ")
+    if userInput == "DONE":
+        break
     productionRulesParser(userInput)
 
+# Run Follow set computation after inputs are done
+compute_follow()
+
+print("\n--- FIRST SETS ---")
 for generator in productions:
     first = First(generator)
     print(f"FIRST ({generator}) : {first}")
+
+print("\n--- FOLLOW SETS ---")
+for generator in productions:
+    follow = Follow(generator)
+    print(f"FOLLOW ({generator}) : {follow}")
