@@ -1,9 +1,10 @@
 #AI LINK = https://gemini.google.com/share/2e1e5330df8b
 
 productionRules = {
-    'A' : ["da", "BCB"],
+    'A' : ["da", "BCD"],
     'B' : ["g", "e"],
-    'C' : ["h", "e"]
+    'C' : ["h", "e"],
+    'D' : ["b", "e"]
 }
 
 Productions = []
@@ -20,22 +21,28 @@ def First(symbol: str) -> list:
     #Loop sa productions
     for RHS in productionRules[symbol]:
         i = 0
-        value = RHS[i]
+        while i < len(RHS):
+            value = RHS[i]
+            #Generator
+            if value.isupper():
+                gen = First(value)
 
-        #Generator
-        if value.isupper():
-            gen = First(value)
-            first.extend(gen)
+                # Add everything except e
+                for x in gen:
+                    if x != "e":
+                        first.append(x)
 
-            if "e" in gen:
-                first.pop()     #Alsin ung e
-                value = RHS[i + 1]
-                gen2 = First(value)
-                first.extend(gen2)
+                # Dahil may epsilon, pwede pa iadd ung sunod.
+                if "e" in gen:
+                    i += 1
+                    if i >= len(RHS):
+                        first.append("e")
+                        break
 
-        #Terminal
-        else:
-            first.append(value)
+            #Terminal symbols
+            else:
+                first.append(value)
+                break
 
     return first
 
